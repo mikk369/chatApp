@@ -19,6 +19,7 @@ export default createStore({
     logout(state) {
       localStorage.removeItem('pocketbase_auth');
       localStorage.removeItem('user');
+      localStorage.removeItem('userId');
       state.token = null;
     },
   },
