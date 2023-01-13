@@ -57,6 +57,7 @@ export default {
           .collection('users')
           .authWithPassword(this.email, this.password);
         localStorage.setItem('user', LoggedInUser.record.email);
+        localStorage.setItem('userId', LoggedInUser.record.id);
         this.$router.push('/chatapp');
         // console.log(LoggedInUser);
       } catch (error) {

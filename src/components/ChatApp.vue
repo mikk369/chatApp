@@ -31,7 +31,9 @@
               class="form-control"
             />
           </div>
-          <button id="sendMessage" type="submit" class="btn btn-success">Send</button>
+          <button id="sendMessage" type="submit" class="btn btn-success">
+            Send
+          </button>
         </form>
       </div>
     </div>
@@ -41,6 +43,7 @@
 <script>
 import HeaderView from './HeaderView.vue';
 import io from 'socket.io-client';
+import PocketBase from 'pocketbase';
 export default {
   name: 'chatapp',
   components: {
@@ -51,11 +54,13 @@ export default {
       message: '',
       messages: [],
       username: '',
+      userId: '',
     };
   },
   created() {
     this.socket = io('http://127.0.0.1:3000');
     this.username = localStorage.getItem('user');
+    this.userId = localStorage.getItem('userId');
     // sends username to server before messages so it can be used to broadcast 'Has joined message'
     this.socket.emit('join', this.username);
   },
@@ -66,8 +71,21 @@ export default {
     });
   },
   methods: {
-    // sends username and message to server
-    sendMessage: function () {
+    async sendMessage() {
+      // Save message to the database
+      const data = {
+        text: this.message,
+        user: this.userId,
+      };
+      try {
+        const pb = new PocketBase('http://127.0.0.1:8090');
+        const record = await pb.collection('messages').create(data);
+        console.log('Message saved successfully to the database: ', record);
+      } catch (err) {
+        console.log('Error saving message to the database: ', err);
+      }
+
+      // Send message to the server
       this.socket.emit('message', {
         username: this.username,
         message: this.message,
